@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 const dotenv = require('dotenv');
 const express = require('express');
@@ -5,7 +6,18 @@ const cloudinary = require('cloudinary');
 const app = require('./backend/app');
 const connectDatabase = require('./backend/config/database');
 
-dotenv.config({ path: path.resolve(__dirname, '.env') });
+const rootEnvPath = path.resolve(__dirname, '.env');
+const backendEnvPath = path.resolve(__dirname, 'backend', 'config', 'config.env');
+
+if (fs.existsSync(rootEnvPath)) {
+    dotenv.config({ path: rootEnvPath });
+    console.log('Loaded environment variables from .env');
+} else if (process.env.NODE_ENV !== 'production' && fs.existsSync(backendEnvPath)) {
+    dotenv.config({ path: backendEnvPath });
+    console.log('Loaded environment variables from backend/config/config.env');
+} else {
+    console.warn('No local .env file found; relying on existing environment variables.');
+}
 
 const PORT = process.env.PORT || 4000;
 

@@ -27,36 +27,43 @@ process.on('uncaughtException', (err) => {
     process.exit(1);
 });
 
-connectDatabase();
-
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
-// deployment
-__dirname = path.resolve();
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '/frontend/build')))
-
-    app.get('*', (req, res) => {
-        res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html'))
+const startServer = () => {
+    cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET,
     });
-} else {
-    app.get('/', (req, res) => {
-        res.send('Server is Running! 🚀');
+
+    // deployment
+    __dirname = path.resolve();
+    if (process.env.NODE_ENV === 'production') {
+        app.use(express.static(path.join(__dirname, '/frontend/build')))
+
+        app.get('*', (req, res) => {
+            res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html'))
+        });
+    } else {
+        app.get('/', (req, res) => {
+            res.send('Server is Running! 🚀');
+        });
+    }
+
+    const server = app.listen(PORT, () => {
+        console.log(`Server running on http://localhost:${PORT}`)
     });
-}
 
-const server = app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`)
-});
+    // Unhandled Promise Rejection
+    process.on('unhandledRejection', (err) => {
+        console.log(`Error: ${err.message}`);
+        server.close(() => {
+            process.exit(1);
+        });
+    });
+};
 
-// Unhandled Promise Rejection
-process.on('unhandledRejection', (err) => {
-    console.log(`Error: ${err.message}`);
-    server.close(() => {
+connectDatabase()
+    .then(() => startServer())
+    .catch(() => {
+        console.error('Failed to connect to MongoDB. Server startup aborted.');
         process.exit(1);
     });
-});

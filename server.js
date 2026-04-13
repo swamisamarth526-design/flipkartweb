@@ -3,8 +3,6 @@ const path = require('path');
 const dotenv = require('dotenv');
 const express = require('express');
 const cloudinary = require('cloudinary');
-const app = require('./backend/app');
-const connectDatabase = require('./backend/config/database');
 
 const rootEnvPath = path.resolve(__dirname, '.env');
 const backendEnvPath = path.resolve(__dirname, 'backend', 'config', 'config.env');
@@ -19,6 +17,8 @@ if (fs.existsSync(rootEnvPath)) {
     console.warn('No local .env file found; relying on existing environment variables.');
 }
 
+const app = require('./backend/app');
+const connectDatabase = require('./backend/config/database');
 const PORT = process.env.PORT || 4000;
 
 // UncaughtException Error

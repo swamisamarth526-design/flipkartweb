@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const fileUpload = require('express-fileupload');
@@ -8,7 +9,7 @@ const app = express();
 
 // config
 if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config({ path: 'backend/config/config.env' });
+    require('dotenv').config({ path: path.resolve(__dirname, 'config', 'config.env') });
 }
 
 app.use(express.json());
